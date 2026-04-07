@@ -2,7 +2,7 @@
 // Critical Northwest Census — Sync Engine
 // ----------------------------------------------------
 
-const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycby9vkAa8JMCBWjw_DtP8bG_d3S3RPEiT8nkqfnr0-ZyNWeGvDgbgW6tmevxAjiDpST3GA/exec';
+const ENDPOINT_URL = "https://script.google.com/macros/u/3/s/AKfycby9vkAa8JMCBWjw_DtP8bG_d3S3RPEiT8nkqfnr0-ZyNWeGvDgbgW6tmevxAjiDpST3GA/exec";
 
 async function syncNow() {
   if (!navigator.onLine) return;
