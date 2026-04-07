@@ -2,130 +2,75 @@
 // Critical Northwest Census — IndexedDB Layer
 // -------------------------------------------
 
-const DB_NAME = "cnw_census_db";
-const STORE_PROGRESS = "progress";
-const STORE_QUEUE = "queue";
+const DB_NAME = 'cnw-census-db';
+const DB_VERSION = 1;
+const STORE_DRAFT = 'draft';
+const STORE_QUEUE = 'queue';
 
-let db;
-
-// Open or create the database
-const request = indexedDB.open(DB_NAME, 1);
-
-request.onupgradeneeded = event => {
-  db = event.target.result;
-
-  if (!db.objectStoreNames.contains(STORE_PROGRESS)) {
-    db.createObjectStore(STORE_PROGRESS, { keyPath: "id" });
-  }
-
-  if (!db.objectStoreNames.contains(STORE_QUEUE)) {
-    db.createObjectStore(STORE_QUEUE, { autoIncrement: true });
-  }
-};
-
-request.onsuccess = event => {
-  db = event.target.result;
-};
-
-request.onerror = event => {
-  console.error("IndexedDB error:", event.target.error);
-};
-
-// ---------------------------
-// Save in-progress responses
-// ---------------------------
-async function saveProgress(id, data) {
+function openDb() {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_PROGRESS, "readwrite");
-    const store = tx.objectStore(STORE_PROGRESS);
-    store.put({ id, data });
-
-    tx.oncomplete = resolve;
-    tx.onerror = reject;
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = event => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_DRAFT)) {
+        db.createObjectStore(STORE_DRAFT, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(STORE_QUEUE)) {
+        db.createObjectStore(STORE_QUEUE, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
   });
 }
 
-// ---------------------------
-// Load in-progress responses
-// ---------------------------
-async function loadProgress(id) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_PROGRESS, "readonly");
-    const store = tx.objectStore(STORE_PROGRESS);
-    const req = store.get(id);
-
-    req.onsuccess = () => resolve(req.result ? req.result.data : null);
-    req.onerror = reject;
-  });
+async function saveDraft(data) {
+  const db = await openDb();
+  const tx = db.transaction(STORE_DRAFT, 'readwrite');
+  const store = tx.objectStore(STORE_DRAFT);
+  store.put({ id: 'current', data, updatedAt: Date.now() });
+  return tx.complete;
 }
 
-// ---------------------------
-// Save a completed submission
-// ---------------------------
 async function saveSubmission(data) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_QUEUE, "readwrite");
-    const store = tx.objectStore(STORE_QUEUE);
-    store.add({
-      data,
-      timestamp: Date.now(),
-      synced: false
-    });
-
-    tx.oncomplete = () => {
-      // Trigger background sync if available
-      if ("serviceWorker" in navigator && "SyncManager" in window) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.sync.register("sync-submissions");
-        });
-      }
-      resolve();
-    };
-
-    tx.onerror = reject;
-  });
+  const db = await openDb();
+  const tx = db.transaction(STORE_QUEUE, 'readwrite');
+  const store = tx.objectStore(STORE_QUEUE);
+  store.add({ data, createdAt: Date.now(), synced: false });
+  return tx.complete;
 }
 
-// ---------------------------
-// Get all unsynced submissions
-// ---------------------------
 async function getQueuedSubmissions() {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_QUEUE, "readonly");
-    const store = tx.objectStore(STORE_QUEUE);
-    const req = store.getAll();
-
-    req.onsuccess = () => {
-      const unsynced = req.result.filter(item => !item.synced);
-      resolve(unsynced);
+  const db = await openDb();
+  const tx = db.transaction(STORE_QUEUE, 'readonly');
+  const store = tx.objectStore(STORE_QUEUE);
+  return new Promise(resolve => {
+    const items = [];
+    const req = store.openCursor();
+    req.onsuccess = e => {
+      const cursor = e.target.result;
+      if (cursor) {
+        items.push({ id: cursor.key, ...cursor.value });
+        cursor.continue();
+      } else {
+        resolve(items);
+      }
     };
-
-    req.onerror = reject;
   });
 }
 
-// ---------------------------
-// Mark submission as synced
-// ---------------------------
-async function markSubmissionSynced(timestamp) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_QUEUE, "readwrite");
-    const store = tx.objectStore(STORE_QUEUE);
-
-    const req = store.openCursor();
-    req.onsuccess = event => {
-      const cursor = event.target.result;
-      if (cursor) {
-        if (cursor.value.timestamp === timestamp) {
-          const updated = cursor.value;
-          updated.synced = true;
-          cursor.update(updated);
-        }
-        cursor.continue();
-      }
-    };
-
-    tx.oncomplete = resolve;
-    tx.onerror = reject;
+async function markSubmissionSynced(id) {
+  const db = await openDb();
+  const tx = db.transaction(STORE_QUEUE, 'readwrite');
+  const store = tx.objectStore(STORE_QUEUE);
+  const item = await new Promise(resolve => {
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result);
   });
+  if (item) {
+    item.synced = true;
+    item.syncedAt = Date.now();
+    store.put(item);
+  }
+  return tx.complete;
 }

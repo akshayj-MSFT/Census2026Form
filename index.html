@@ -2,249 +2,294 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Critical Northwest 2026 Census Form (Offline)</title>
+  <title>Critical Northwest 2026 Census</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="manifest.json" />
-  <script defer src="db.js"></script>
-  <script defer src="sync.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #fafafa;
-    }
-    .page {
-      display: none;
-      padding: 20px;
-    }
-    .page.active {
-      display: block;
-    }
-    h2 {
-      margin-top: 0;
-    }
-    .nav-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-    button {
-      padding: 10px 18px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .next-btn {
-      background: #0066ff;
-      color: white;
-    }
-    .back-btn {
-      background: #ccc;
-    }
-    .submit-btn {
-      background: #28a745;
-      color: white;
-      width: 100%;
-      margin-top: 20px;
-    }
-  </style>
+  <meta name="theme-color" content="#111827" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+  <main id="app">
+    <!-- PAGE 1: Consent + Ticket -->
+    <section class="page" data-page="1">
+      <h1>Critical Northwest 2026 Census Form</h1>
+      <p>
+        The Critical Northwest (CNW) 2026 Census aims to deepen the understanding of the community's demographics,
+        preferences, and experiences in order to help inform future production initiatives and equity.
+        Please fill out this anonymous survey once for each ticketed participant. If you fill out this form online
+        before the event, you have successfully participated in the Census. Please come by the Census tent starting
+        Tuesday to get a sticker from us. Thank you for providing us with data and helping the community grow!
+      </p>
 
-  <!-- PAGE 1 — SECTION 1 -->
-  <div class="page active" id="page-1">
-    <h2>Critical Northwest 2026 Census Form</h2>
-    <p>
-      The Critical Northwest (CNW) 2026 Census aims to deepen the understanding of the community’s demographics,
-      preferences, and experiences in order to help inform future production initiatives and equity.
-      Please fill out this anonymous survey once for each ticketed participant.
-      If you fill out this form online before the event, you have successfully participated in the Census.
-      Please come by the Census tent starting Tuesday to get a sticker from us.
-    </p>
+      <label class="question required">
+        I consent to giving my data to Ignition Northwest to help facilitate an overview of our community and its needs so we can all burn brighter together.
+        <span class="required-mark">*</span>
+        <select id="consent" data-key="I consent to giving my data to Ignition Northwest to help facilitate an overview of our community and its needs so we can all burn brighter together." required>
+          <option value="">Select…</option>
+          <option value="Yes">Yes</option>
+        </select>
+      </label>
 
-    <!-- Q1 -->
-    <label><strong>I consent to giving my data to Ignition Northwest to help facilitate an overview of our community and its needs so we can all burn brighter together.</strong></label><br>
-    <input type="radio" name="consent" value="Yes" required> Yes<br>
-    <input type="radio" name="consent" value="Other"> Other:
-    <input type="text" id="consent-other"><br><br>
+      <label class="question">
+        If this form is filled out by or on behalf of a minor please have the responsible adult initial below. No full names for privacy reasons.
+        <input id="minor_initials" type="text"
+          data-key="If this form is filled out by or on behalf of a minor please have the responsible adult initial below. No full names for privacy reasons." />
+      </label>
 
-    <!-- Q2 -->
-    <label><strong>If this form is filled out by or on behalf of a minor please have the responsible adult initial below. No full names for privacy reasons.</strong></label><br>
-    <input type="text" id="minor-initials"><br><br>
+      <label class="question required">
+        Do you have a ticket for Critical Northwest?
+        <span class="required-mark">*</span>
+        <select id="ticket" data-key="Do you have a ticket for Critical Northwest?" required>
+          <option value="">Select…</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </label>
 
-    <!-- Q3 -->
-    <label><strong>Do you have a ticket for Critical Northwest?</strong></label><br>
-    <input type="radio" name="ticket" value="Yes" required> Yes<br>
-    <input type="radio" name="ticket" value="Other"> Other:
-    <input type="text" id="ticket-other"><br><br>
+      <div class="nav">
+        <button type="button" id="next-1">Next</button>
+      </div>
+    </section>
 
-    <div class="nav-buttons">
-      <span></span>
-      <button class="next-btn" onclick="nextPage()">Next</button>
-    </div>
-  </div>
+    <!-- PAGE 2: Demographics -->
+    <section class="page" data-page="2" hidden>
+      <h2>Demographics</h2>
+      <p>All questions are optional to answer, but we appreciate you answering as many as possible.</p>
 
-  <!-- PAGE 2 — SECTION 2 -->
-  <div class="page" id="page-2">
-    <h2>Demographics</h2>
-    <p>All questions are optional to answer, but we appreciate you answering as many as possible.</p>
+      <label class="question">
+        What is your current age? Select one.
+        <select data-key="What is your current age? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>under 13</option>
+          <option>13-17</option>
+          <option>18-24</option>
+          <option>25-34</option>
+          <option>35-44</option>
+          <option>45-54</option>
+          <option>55-64</option>
+          <option>over 65</option>
+        </select>
+      </label>
 
-    <!-- Q4 -->
-    <label><strong>What is your current age? Select one.</strong></label><br>
-    <div id="age-options"></div><br>
+      <label class="question">
+        What gender identity best describes you? Select one.
+        <select data-key="What gender identity best describes you? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>Woman</option>
+          <option>Man</option>
+          <option>Non-binary</option>
+          <option>Genderfluid</option>
+          <option>Genderqueer</option>
+          <option>Two-Spirit</option>
+          <option>Other</option>
+        </select>
+      </label>
 
-    <!-- Q5 -->
-    <label><strong>What gender identity best describes you? Select one.</strong></label><br>
-    <div id="gender-options"></div><br>
+      <label class="question">
+        Do you identify as transgender?
+        <select data-key="Do you identify as transgender?">
+          <option value="">Prefer not to say</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </label>
 
-    <!-- Q6 -->
-    <label><strong>Do you identify as transgender?</strong></label><br>
-    <input type="radio" name="trans" value="Yes"> Yes<br>
-    <input type="radio" name="trans" value="No"> No<br><br>
+      <label class="question">
+        What is your highest level of education completed? Select one.
+        <select data-key="What is your highest level of education completed? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>Currently in K-12/Homeschooling</option>
+          <option>High School Diploma/GED</option>
+          <option>Vocational/trade</option>
+          <option>Some college</option>
+          <option>Associates degree</option>
+          <option>Bachelors degree</option>
+          <option>Masters degree</option>
+          <option>Doctoral degree (MD, PhD, DO, DDS etc.)</option>
+          <option>No formal education</option>
+        </select>
+      </label>
 
-    <!-- Q7 -->
-    <label><strong>What is your highest level of education completed? Select one.</strong></label><br>
-    <div id="education-options"></div><br>
+      <label class="question">
+        What was your personal income over the last 12 months? Select one.
+        <select data-key="What was your personal income over the last 12 months? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>Less than $12,880</option>
+          <option>$12,880 - $24,999</option>
+          <option>$25,000 - $49,999</option>
+          <option>$50,000 - $74,999</option>
+          <option>$75,000 - $99,999</option>
+          <option>$100,000 - $149,999</option>
+          <option>$150,000 - $199,999</option>
+          <option>Above $200,000</option>
+          <option>I have no personal income.</option>
+        </select>
+      </label>
 
-    <!-- Q8 -->
-    <label><strong>What was your personal income over the last 12 months? Select one.</strong></label><br>
-    <div id="income-options"></div><br>
+      <label class="question">
+        Where do you live? Please provide us with your Zip Code or Country if you live outside of the US.
+        <input type="text"
+          data-key="Where do you live? Please provide us with your Zip Code or Country if you live outside of the US." />
+      </label>
 
-    <!-- Q9 -->
-    <label><strong>Where do you live? Please provide us with your Zip Code or Country if you live outside of the US.</strong></label><br>
-    <input type="text" id="location"><br><br>
+      <label class="question">
+        What ethnicity best describes you? Select one.
+        <select data-key="What ethnicity best describes you? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>White/Caucasian</option>
+          <option>Asian</option>
+          <option>Black or African American</option>
+          <option>Hispanic or Latino</option>
+          <option>American Indian, Alaska Native or Indigenous</option>
+          <option>Native Hawaiian or Pacific Islander</option>
+          <option>Other</option>
+        </select>
+      </label>
 
-    <!-- Q10 -->
-    <label><strong>What ethnicity best describes you? Select one.</strong></label><br>
-    <div id="ethnicity-options"></div><br>
+      <label class="question">
+        What sexual orientation best describes you? Select one.
+        <select data-key="What sexual orientation best describes you? Select one.">
+          <option value="">Prefer not to say</option>
+          <option>Lesbian</option>
+          <option>Gay</option>
+          <option>Bisexual</option>
+          <option>Pansexual</option>
+          <option>Queer</option>
+          <option>Asexual</option>
+          <option>Heterosexual or straight</option>
+          <option>Unsure/questioning</option>
+          <option>Other</option>
+        </select>
+      </label>
 
-    <!-- Q11 -->
-    <label><strong>What sexual orientation best describes you? Select one.</strong></label><br>
-    <div id="orientation-options"></div><br>
+      <div class="nav">
+        <button type="button" id="back-2">Back</button>
+        <button type="button" id="next-2">Next</button>
+      </div>
+    </section>
 
-    <div class="nav-buttons">
-      <button class="back-btn" onclick="prevPage()">Back</button>
-      <button class="next-btn" onclick="nextPage()">Next</button>
-    </div>
-  </div>
+    <!-- PAGE 3: CNW Event Questions -->
+    <section class="page" data-page="3" hidden>
+      <h2>Critical Northwest Event Questions</h2>
 
-  <!-- PAGE 3 — SECTION 3 -->
-  <div class="page" id="page-3">
-    <h2>Critical Northwest Event Questions</h2>
+      <label class="question">
+        How often have you attended CNW in the past? Select one.
+        <select data-key="How often have you attended CNW in the past? Select one.">
+          <option value="">Select…</option>
+          <option>Never - this is my first time</option>
+          <option>1 to 2 times</option>
+          <option>3 to 5 times</option>
+          <option>6 to 10 times</option>
+          <option>More than 10 times</option>
+        </select>
+      </label>
 
-    <!-- Q12 -->
-    <label><strong>How often have you attended CNW in the past? Select one.</strong></label><br>
-    <div id="attendance-options"></div><br>
+      <label class="question">
+        Transportation to the event - how are you arriving? Select one.
+        <select data-key="Transportation to the event - how are you arriving? Select one.">
+          <option value="">Select…</option>
+          <option>I am driving and my vehicle will be parked onsite.</option>
+          <option>I am driving and my vehicle will be not parked onsite.</option>
+          <option>I am riding in a vehicle driven by someone else.</option>
+        </select>
+      </label>
 
-    <!-- Q13 -->
-    <label><strong>Transportation to the event - how are you arriving? Select one.</strong></label><br>
-    <div id="transport-options"></div><br>
+      <label class="question">
+        What is the main way you receive communications about CNW updates? Select one.
+        <select data-key="What is the main way you receive communications about CNW updates? Select one.">
+          <option value="">Select…</option>
+          <option>Email Newsletter</option>
+          <option>Critical Northwest Facebook Group</option>
+          <option>Friends</option>
+          <option>Text messages from INW</option>
+          <option>Bluesky</option>
+        </select>
+      </label>
 
-    <!-- Q14 -->
-    <label><strong>What is the main way you receive communications about CNW updates? Select one.</strong></label><br>
-    <div id="comm-options"></div><br>
+      <fieldset class="question">
+        <legend>Given the various facets of your identity, how inclusive do you feel that CNW is for you?</legend>
+        <div class="scale">
+          <span>Not inclusive</span>
+          <label><input type="radio" name="inclusive" value="1"
+            data-key="Given the various facets of your identity, how inclusive do you feel that CNW is for you?">1</label>
+          <label><input type="radio" name="inclusive" value="2"
+            data-key="Given the various facets of your identity, how inclusive do you feel that CNW is for you?">2</label>
+          <label><input type="radio" name="inclusive" value="3"
+            data-key="Given the various facets of your identity, how inclusive do you feel that CNW is for you?">3</label>
+          <label><input type="radio" name="inclusive" value="4"
+            data-key="Given the various facets of your identity, how inclusive do you feel that CNW is for you?">4</label>
+          <label><input type="radio" name="inclusive" value="5"
+            data-key="Given the various facets of your identity, how inclusive do you feel that CNW is for you?">5</label>
+          <span>Very inclusive</span>
+        </div>
+      </fieldset>
 
-    <!-- Q15 -->
-    <label><strong>Given the various facets of your identity, how inclusive do you feel that CNW is for you?</strong></label><br>
-    <input type="range" id="inclusivity" min="1" max="5" value="3"><br>
-    <small>1 = Not inclusive, 5 = Very inclusive</small><br><br>
+      <div class="nav">
+        <button type="button" id="back-3">Back</button>
+        <button type="button" id="next-3">Next</button>
+      </div>
+    </section>
 
-    <div class="nav-buttons">
-      <button class="back-btn" onclick="prevPage()">Back</button>
-      <button class="next-btn" onclick="nextPage()">Next</button>
-    </div>
-  </div>
+    <!-- PAGE 4: INW + BMOrg -->
+    <section class="page" data-page="4" hidden>
+      <h2>Ignition Northwest (INW) and Burning Man Organization (BMOrg) Specific Questions</h2>
 
-  <!-- PAGE 4 — SECTION 4 -->
-  <div class="page" id="page-4">
-    <h2>Ignition Northwest (INW) and Burning Man Organization (BMOrg) Specific Questions</h2>
+      <fieldset class="question">
+        <legend>What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply.</legend>
+        <label><input type="checkbox"
+          data-key="What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply."
+          value="INW Town Halls">INW Town Halls</label>
+        <label><input type="checkbox"
+          data-key="What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply."
+          value="Reignition">Reignition</label>
+        <label><input type="checkbox"
+          data-key="What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply."
+          value="Seacompression">Seacompression</label>
+        <label><input type="checkbox"
+          data-key="What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply."
+          value="Volunteer appreciation event">Volunteer appreciation event</label>
+        <label><input type="checkbox"
+          data-key="What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply."
+          value="I have not attended any other INW events.">I have not attended any other INW events.</label>
+      </fieldset>
 
-    <!-- Q16 -->
-    <label><strong>What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply.</strong></label><br>
-    <div id="inw-events"></div><br>
+      <fieldset class="question">
+        <legend>What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply.</legend>
+        <label><input type="checkbox"
+          data-key="What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply."
+          value="SOAK">SOAK</label>
+        <label><input type="checkbox"
+          data-key="What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply."
+          value="What If (formerly Burn in the Forest)">What If (formerly Burn in the Forest)</label>
+        <label><input type="checkbox"
+          data-key="What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply."
+          value="I have not attended any other BMOrg Regional Burns.">I have not attended any other BMOrg Regional Burns.</label>
+        <label>Other:
+          <input type="text"
+            data-key="What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply. - Other" />
+        </label>
+      </fieldset>
 
-    <!-- Q17 -->
-    <label><strong>What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply.</strong></label><br>
-    <div id="bmorg-events"></div><br>
+      <label class="question">
+        Have you been to Burning Man? Select one.
+        <select data-key="Have you been to Burning Man? Select one.">
+          <option value="">Select…</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </label>
 
-    <!-- Q18 -->
-    <label><strong>Have you been to Burning Man? Select one.</strong></label><br>
-    <input type="radio" name="burningman" value="Yes"> Yes<br>
-    <input type="radio" name="burningman" value="No"> No<br><br>
+      <div class="nav">
+        <button type="button" id="back-4">Back</button>
+        <button type="button" id="submit">Submit</button>
+      </div>
 
-    <button class="submit-btn" onclick="submitForm()">Submit</button>
+      <p id="status" class="status"></p>
+    </section>
+  </main>
 
-    <div class="nav-buttons">
-      <button class="back-btn" onclick="prevPage()">Back</button>
-      <span></span>
-    </div>
-  </div>
-
-  <script>
-    let currentPage = 1;
-
-    function showPage(n) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(`page-${n}`).classList.add('active');
-    }
-
-    function nextPage() {
-      currentPage++;
-      showPage(currentPage);
-    }
-
-    function prevPage() {
-      currentPage--;
-      showPage(currentPage);
-    }
-
-    async function submitForm() {
-      const data = collectFormData();
-      await saveSubmission(data);
-      alert("Your response has been saved. It will sync when online.");
-      location.reload();
-    }
-
-    function collectFormData() {
-      const getRadio = name => {
-        const selected = document.querySelector(`input[name="${name}"]:checked`);
-        return selected ? selected.value : "";
-      };
-
-      const getCheckboxes = containerId => {
-        return [...document.querySelectorAll(`#${containerId} input[type="checkbox"]:checked`)]
-          .map(cb => cb.value)
-          .join(", ");
-      };
-
-      return {
-        "I consent to giving my data to Ignition Northwest to help facilitate an overview of our community and its needs so we can all burn brighter together.": getRadio("consent"),
-        "Minor initials": document.getElementById("minor-initials").value,
-        "Do you have a ticket for Critical Northwest?": getRadio("ticket"),
-
-        "What is your current age? Select one.": getRadio("age"),
-        "What gender identity best describes you? Select one.": getRadio("gender"),
-        "Do you identify as transgender?": getRadio("trans"),
-        "What is your highest level of education completed? Select one.": getRadio("education"),
-        "What was your personal income over the last 12 months? Select one.": getRadio("income"),
-        "Where do you live? Please provide us with your Zip Code or Country if you live outside of the US.": document.getElementById("location").value,
-        "What ethnicity best describes you? Select one.": getRadio("ethnicity"),
-        "What sexual orientation best describes you? Select one.": getRadio("orientation"),
-
-        "How often have you attended CNW in the past? Select one.": getRadio("attendance"),
-        "Transportation to the event - how are you arriving? Select one.": getRadio("transport"),
-        "What is the main way you receive communications about CNW updates? Select one.": getRadio("comm"),
-        "Given the various facets of your identity, how inclusive do you feel that CNW is for you?": document.getElementById("inclusivity").value,
-
-        "What other INW Events do/did you attend (if any) other than Critical NW? Check all that apply.": getCheckboxes("inw-events"),
-        "What other official BMOrg Regional Burns have you attended in the past, either in the US or elsewhere? Check all that apply.": getCheckboxes("bmorg-events"),
-        "Have you been to Burning Man? Select one.": getRadio("burningman")
-      };
-    }
-  </script>
-
+  <script src="db.js"></script>
+  <script src="sync.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

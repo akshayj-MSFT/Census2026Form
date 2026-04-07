@@ -2,45 +2,34 @@
 // Critical Northwest Census — Sync Engine
 // ----------------------------------------------------
 
-// TODO: Replace this with your Google Apps Script URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoY6UpoiCfinT7VElOaB6Qw8KeL1KYzPh7IC4gkxO1sSPRxgnyvIoz9Jauh0kvYEsX/exec";
+const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbyoY6UpoiCfinT7VElOaB6Qw8KeL1KYzPh7IC4gkxO1sSPRxgnyvIoz9Jauh0kvYEsX/exec';
 
-// Listen for messages from the service worker
-navigator.serviceWorker?.addEventListener("message", event => {
-  if (event.data?.action === "sync") {
-    syncSubmissions();
-  }
-});
+async function syncNow() {
+  if (!navigator.onLine) return;
 
-// Detect when the device comes online
-window.addEventListener("online", () => {
-  syncSubmissions();
-});
-
-// -------------------------------------------
-// Send queued submissions to Google Sheets
-// -------------------------------------------
-async function syncSubmissions() {
-  const queued = await getQueuedSubmissions();
-  if (!queued.length) return;
-
-  for (const item of queued) {
+  const submissions = await getQueuedSubmissions();
+  for (const sub of submissions) {
+    if (sub.synced) continue;
     try {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item.data)
+      const res = await fetch(ENDPOINT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(sub.data)
       });
-
-      if (response.ok) {
-        await markSubmissionSynced(item.timestamp);
-      } else {
-        console.error("Sync failed:", await response.text());
-      }
-    } catch (err) {
-      console.error("Network error during sync:", err);
-      return; // stop syncing until connection improves
+      // no-cors: assume success if no error thrown
+      await markSubmissionSynced(sub.id);
+    } catch (e) {
+      // keep in queue, try later
     }
   }
 }
+
+window.addEventListener('online', () => {
+  syncNow();
+});
+
+// Optional: manual sync trigger if you ever want a button
+// document.getElementById('sync-btn').addEventListener('click', syncNow);

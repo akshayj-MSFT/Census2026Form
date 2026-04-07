@@ -3,73 +3,45 @@
 // Service Worker
 // -------------------------------
 
-const CACHE_NAME = "cnw-census-cache-v1";
-const ASSETS = [
-  "/",
-  "/index.html",
-  "/manifest.json",
-  "/db.js",
-  "/sync.js",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
+const CACHE_NAME = 'cnw-census-cache-v1';
+const OFFLINE_URLS = [
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/db.js',
+  '/sync.js',
+  '/manifest.json'
 ];
 
-// Install — cache core assets
-self.addEventListener("install", event => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(OFFLINE_URLS))
   );
   self.skipWaiting();
 });
 
-// Activate — clean old caches
-self.addEventListener("activate", event => {
+self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.map(key => {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
       )
     )
   );
   self.clients.claim();
 });
 
-// Fetch — serve cached assets offline
-self.addEventListener("fetch", event => {
+self.addEventListener('fetch', event => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return (
-        cached ||
-        fetch(event.request).catch(() => {
-          // Offline fallback for navigation requests
-          if (event.request.mode === "navigate") {
-            return caches.match("/index.html");
-          }
-        })
-      );
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req).catch(() => caches.match('/index.html'));
     })
   );
 });
-
-// Background Sync — trigger queued submission upload
-self.addEventListener("sync", event => {
-  if (event.tag === "sync-submissions") {
-    event.waitUntil(sendQueuedSubmissions());
-  }
-});
-
-// Helper: call sync function inside sync.js
-async function sendQueuedSubmissions() {
-  if (self.registration && self.registration.active) {
-    try {
-      const clientList = await self.clients.matchAll();
-      for (const client of clientList) {
-        client.postMessage({ action: "sync" });
-      }
-    } catch (err) {
-      console.error("Background sync failed:", err);
-    }
-  }
-}

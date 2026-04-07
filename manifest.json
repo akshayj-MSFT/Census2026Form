@@ -1,11 +1,10 @@
 {
-  "name": "Critical Northwest 2026 Census Form",
+  "name": "Critical Northwest 2026 Census",
   "short_name": "CNW Census",
-  "start_url": "index.html",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0066ff",
-  "description": "Offline-capable census form for Critical Northwest 2026.",
+  "background_color": "#111827",
+  "theme_color": "#111827",
   "icons": [
     {
       "src": "icons/icon-192.png",
