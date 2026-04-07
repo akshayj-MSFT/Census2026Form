@@ -3,7 +3,7 @@
 // Service Worker
 // -------------------------------
 
-const CACHE_NAME = 'cnw-census-cache-v3';
+const CACHE_NAME = 'cnw-census-cache-v4';
 const OFFLINE_URLS = [
   '/',
   '/index.html',
