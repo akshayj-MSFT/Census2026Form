@@ -93,3 +93,8 @@ button:hover {
   gap: 0.5rem;
   flex-wrap: wrap;
 }
+
+fieldset.question label {
+  display: block;
+  margin: 0.35rem 0;
+}
